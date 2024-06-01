@@ -2,6 +2,7 @@ package com.example.pokedex.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.model.PokemonWithUrl
@@ -29,6 +30,11 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
     val selectedCategoryPokemonList = mutableStateListOf<PokemonWithUrl>()
 
     val favPokemonList  = mutableStateListOf<PokemonWithUrl>()
+
+    //************************************ For searching
+
+    val isSearching = mutableStateOf(false)
+    val SearchedPokemons = mutableStateListOf<PokemonWithUrl>()
 
 
     fun getPokemonList(){
@@ -110,6 +116,17 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
                 if (pokemon.category.equals(type, true)) {
                     selectedCategoryPokemonList.removeAt(idx)
                 }
+            }
+        }
+    }
+
+
+    fun getSearchedPokemon(searchInput : String){
+        SearchedPokemons.clear()
+        for(idx in 0 until pokemonList.value.size){
+            val pokemon = pokemonList.value.get(idx)
+            if (pokemon.pokemonName.startsWith(searchInput)){
+                SearchedPokemons.add(pokemon)
             }
         }
     }

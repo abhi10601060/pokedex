@@ -107,7 +107,7 @@ fun AllPokemonScreen(
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
         )
-        SearchBar("Search Pokemon"){
+        SearchBar("Search Pokemon" , viewModel){
 
         }
         PokemonGrid(viewModel)
@@ -116,8 +116,9 @@ fun AllPokemonScreen(
 
 
 @Composable
-fun SearchBar(hint : String, onSearch : (String) -> Unit) {
+fun SearchBar(hint : String, viewModel: MainViewModel, onSearch : (String) -> Unit) {
     var enteredText by remember { mutableStateOf("") }
+    var isSearching by remember { viewModel.isSearching }
 
     Box(
         modifier = Modifier
@@ -145,6 +146,12 @@ fun SearchBar(hint : String, onSearch : (String) -> Unit) {
             value = enteredText ,
             onValueChange = {
                 enteredText = it
+                if(it == ""){
+                    isSearching = false
+                }else{
+                    isSearching = true
+                    viewModel.getSearchedPokemon(it)
+                }
             },
             trailingIcon = {
                 Icon( imageVector = Icons.Default.Search, contentDescription = "search" , modifier =  Modifier.padding(end = 10.dp))
@@ -153,7 +160,7 @@ fun SearchBar(hint : String, onSearch : (String) -> Unit) {
                 onSearch = {
                     onSearch(enteredText)
                 }
-            )
+            ),
         )
     }
 }
@@ -161,6 +168,14 @@ fun SearchBar(hint : String, onSearch : (String) -> Unit) {
 
 @Composable
 fun PokemonGrid(viewModel : MainViewModel) {
+
+    val isSearching by remember {
+        viewModel.isSearching
+    }
+    val searchedPokemon  = remember {
+        viewModel.SearchedPokemons
+    }
+
     LaunchedEffect(key1 = "first Call") {
         viewModel.getPokemonList()
     }
@@ -169,7 +184,7 @@ fun PokemonGrid(viewModel : MainViewModel) {
     LazyVerticalGrid(columns = GridCells.Fixed(2),
         modifier = Modifier.fillMaxSize()
     ) {
-        itemsIndexed(pokemonList){
+        itemsIndexed(if(isSearching) searchedPokemon else pokemonList){
                 idx , pokemon ->
                     PokemonCard(pokemon = pokemon , viewModel)
                 if (idx == pokemonList.size-1){
