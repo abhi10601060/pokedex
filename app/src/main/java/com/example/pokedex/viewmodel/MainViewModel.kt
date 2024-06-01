@@ -3,7 +3,10 @@ package com.example.pokedex.viewmodel
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.pokedex.model.PokemonWithUrl
 import com.example.pokedex.model.category.PokemonFromCategory
@@ -13,8 +16,10 @@ import com.example.pokedex.network.Resource
 import com.example.pokedex.repo.MainRepo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,7 +34,7 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
     val pokemonCategoryList = listOf("normal" , "fighting", "flying", "poison","ground", "rock","bug", "ghost", "steel", "fire")
     val selectedCategoryPokemonList = mutableStateListOf<PokemonWithUrl>()
 
-    val favPokemonList  = mutableStateListOf<PokemonWithUrl>()
+    var allFavPokemons : Flow<List<PokemonWithUrl>>  = MutableStateFlow(emptyList())
 
     //************************************ For searching
 
@@ -120,7 +125,6 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
         }
     }
 
-
     fun getSearchedPokemon(searchInput : String){
         SearchedPokemons.clear()
         for(idx in 0 until pokemonList.value.size){
@@ -131,12 +135,22 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
         }
     }
 
-    val pokemon : StateFlow<Resource<Pokemon>?>
-        get() = mainRepo.pokemon
-
-    fun getPokemonByName(name :String){
+    fun addFavPokemon(pokemon: PokemonWithUrl){
         viewModelScope.launch(Dispatchers.IO) {
-            mainRepo.getPokemonByName(name)
+            val res = mainRepo.addFavPokemonToDb(pokemon = pokemon)
+            Log.d("FAV_POKEMON", "addFavPokemon: res: $res")
+        }
+    }
+
+    fun removePokemonFromFav(pokemon: PokemonWithUrl){
+        viewModelScope.launch(Dispatchers.IO) {
+            mainRepo.removeFavPokemon(pokemon)
+        }
+    }
+
+    fun getAllFavPokemons(){
+        viewModelScope.launch(Dispatchers.IO){
+            allFavPokemons =  mainRepo.getAllFavPokemon()
         }
     }
 }

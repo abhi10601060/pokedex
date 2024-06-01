@@ -61,23 +61,8 @@ class MainActivity : ComponentActivity() {
                App(viewModel = viewModel)
             }
         }
-        CoroutineScope(Dispatchers.Unconfined).launch {
-            observePokemon()
-        }
-    }
-
-    private suspend fun observePokemon() {
-        viewModel.pokemon.collect{
-            when(it){
-                is Resource.Loading -> println("loading")
-                is Resource.Error -> println("error : ${it.message}")
-                is Resource.Success -> println(it.data?.name)
-                null -> println("null")
-            }
-        }
     }
 }
-
 
 @Composable
 fun App(viewModel : MainViewModel = hiltViewModel<MainViewModel>()) {

@@ -54,6 +54,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.input.ImeAction
@@ -107,16 +108,14 @@ fun AllPokemonScreen(
                 .fillMaxWidth()
                 .align(Alignment.CenterHorizontally)
         )
-        SearchBar("Search Pokemon" , viewModel){
-
-        }
+        SearchBar("Search Pokemon" , viewModel)
         PokemonGrid(viewModel)
     }
 }
 
 
 @Composable
-fun SearchBar(hint : String, viewModel: MainViewModel, onSearch : (String) -> Unit) {
+fun SearchBar(hint : String, viewModel: MainViewModel) {
     var enteredText by remember { mutableStateOf("") }
     var isSearching by remember { viewModel.isSearching }
 
@@ -126,6 +125,7 @@ fun SearchBar(hint : String, viewModel: MainViewModel, onSearch : (String) -> Un
             .padding(top = 10.dp, start = 16.dp, end = 16.dp),
         contentAlignment = Alignment.Center
     ){
+        val localFocusManager = LocalFocusManager.current
         TextField(
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             label = {
@@ -158,7 +158,7 @@ fun SearchBar(hint : String, viewModel: MainViewModel, onSearch : (String) -> Un
             },
             keyboardActions = KeyboardActions(
                 onSearch = {
-                    onSearch(enteredText)
+                    localFocusManager.clearFocus(true)
                 }
             ),
         )
@@ -217,10 +217,10 @@ fun PokemonCard(pokemon : PokemonWithUrl, viewModel: MainViewModel) {
                     .padding(end = 5.dp, top = 5.dp)
                     .clickable(onClick = {
                         if (!isFav) {
-                            viewModel.favPokemonList.add(pokemon)
+                            viewModel.addFavPokemon(pokemon)
                             pokemon.isFavourite.value = true
                         } else {
-                            viewModel.favPokemonList.remove(pokemon)
+                            viewModel.removePokemonFromFav(pokemon)
                             pokemon.isFavourite.value = false
                         }
                     })
@@ -256,25 +256,25 @@ fun PokemonCard(pokemon : PokemonWithUrl, viewModel: MainViewModel) {
 @Composable
 fun CardPrev() {
     PokedexTheme {
-        PokemonCard( pokemon = PokemonWithUrl("dadadadad" , "fa" , 1), viewModel =viewModel {
-            MainViewModel(MainRepo(object : PokedexService{
-                override suspend fun getPokemonList(
-                    offset: Int,
-                    limit: Int
-                ): Response<PokemonList> {
-                    TODO("Not yet implemented")
-                }
-
-                override suspend fun getPokemonByName(name: String): Response<Pokemon> {
-                    TODO("Not yet implemented")
-                }
-
-                override suspend fun getPokemonListByType(type: String): Response<CategoryOutput> {
-                    TODO("Not yet implemented")
-                }
-
-            }))
-        } )
+//        PokemonCard( pokemon = PokemonWithUrl("dadadadad" , "fa" , 1), viewModel =viewModel {
+//            MainViewModel(MainRepo(object : PokedexService{
+//                override suspend fun getPokemonList(
+//                    offset: Int,
+//                    limit: Int
+//                ): Response<PokemonList> {
+//                    TODO("Not yet implemented")
+//                }
+//
+//                override suspend fun getPokemonByName(name: String): Response<Pokemon> {
+//                    TODO("Not yet implemented")
+//                }
+//
+//                override suspend fun getPokemonListByType(type: String): Response<CategoryOutput> {
+//                    TODO("Not yet implemented")
+//                }
+//
+//            }))
+//        } )
 //        PokemonGrid()
 //        PokemonCard(pokemon = PokemonWithUrl("charmander" , "https://www.google.com/imgres?q=image%20url&imgurl=https%3A%2F%2Fd27jswm5an3efw.cloudfront.net%2Fapp%2Fuploads%2F2019%2F08%2Fimage-url-3.jpg&imgrefurl=https%3A%2F%2Fwww.canto.com%2Fblog%2Fimage-url%2F&docid=aKW_r6CRcOAGeM&tbnid=v5iXxFTM6IuVGM&vet=12ahUKEwig1JjMsbOGAxX0Z_UHHefVM_wQM3oECGEQAA..i&w=800&h=824&hcb=2&ved=2ahUKEwig1JjMsbOGAxX0Z_UHHefVM_wQM3oECGEQAA" , 2))
     }
