@@ -16,8 +16,8 @@ import javax.inject.Inject
 
 class MainRepo @Inject constructor(private val api: PokedexService , private val db: PokemonDatabase) {
 
-    private val _pokemon = MutableStateFlow<Resource<Pokemon>?>(null)
-    val pokemon : StateFlow<Resource<Pokemon>?>
+    private val _pokemon = MutableStateFlow<Resource<Pokemon>>(Resource.Loading())
+    val pokemon : StateFlow<Resource<Pokemon>>
         get() = _pokemon
 
     suspend fun getPokemonByName(name : String){

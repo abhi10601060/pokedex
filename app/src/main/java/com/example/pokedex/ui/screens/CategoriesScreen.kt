@@ -47,7 +47,7 @@ import com.example.pokedex.viewmodel.MainViewModel
 
 
 @Composable
-fun CategoryScreen(navController: NavController , viewModel: MainViewModel) {
+fun CategoryScreen(viewModel: MainViewModel, mainNavController: NavController) {
     Column(modifier = Modifier
         .fillMaxSize()
         .background(LightBlue)) {
@@ -55,7 +55,7 @@ fun CategoryScreen(navController: NavController , viewModel: MainViewModel) {
         Spacer(modifier = Modifier.height(5.dp))
         CategoriesScroll(viewModel)
         Spacer(modifier = Modifier.height(10.dp))
-        CategoryPokemonGrid(viewModel = viewModel)
+        CategoryPokemonGrid(viewModel = viewModel , mainNavController)
     }
 }
 
@@ -114,7 +114,7 @@ fun CategoryContainer(category : String, viewModel: MainViewModel) {
 }
 
 @Composable
-fun CategoryPokemonGrid(viewModel: MainViewModel) {
+fun CategoryPokemonGrid(viewModel: MainViewModel , mainNavController: NavController) {
     val pokemonList = remember {
         viewModel.selectedCategoryPokemonList
     }
@@ -125,7 +125,7 @@ fun CategoryPokemonGrid(viewModel: MainViewModel) {
     ) {
         itemsIndexed(pokemonList){
                 idx , pokemon ->
-            PokemonCard(pokemon = pokemon , viewModel)
+            PokemonCard(pokemon = pokemon , viewModel,mainNavController)
         }
     }
 }

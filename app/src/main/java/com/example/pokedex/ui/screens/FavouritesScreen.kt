@@ -40,7 +40,7 @@ import kotlinx.coroutines.delay
 import retrofit2.Response
 
 @Composable
-fun FavouritesScreen(navController: NavController, viewModel: MainViewModel) {
+fun FavouritesScreen(viewModel: MainViewModel , mainNavController: NavController) {
     Scaffold {
         Column(
             modifier = Modifier
@@ -48,14 +48,17 @@ fun FavouritesScreen(navController: NavController, viewModel: MainViewModel) {
                 .fillMaxSize()
         ){
             TitleBar(backgroundColor = LightBlue, title = "Favourites")
-            FavPokemonGrid(viewModel = viewModel)
+            FavPokemonGrid(viewModel = viewModel, mainNavController)
         }
     }
 }
 
 @Composable
-fun FavPokemonGrid(viewModel: MainViewModel) {
+fun FavPokemonGrid(viewModel: MainViewModel, mainNavController: NavController) {
     val pokemonList by viewModel.allFavPokemons.collectAsState(initial = emptyList())
+    pokemonList.map {
+        it.isFavourite.value = true
+    }
     LaunchedEffect(key1 = "call") {
         viewModel.getAllFavPokemons()
     }
@@ -66,7 +69,7 @@ fun FavPokemonGrid(viewModel: MainViewModel) {
     ) {
         itemsIndexed(pokemonList){
                 idx , pokemon ->
-            PokemonCard(pokemon = pokemon , viewModel)
+            PokemonCard(pokemon = pokemon , viewModel ,  mainNavController = mainNavController)
         }
     }
 }

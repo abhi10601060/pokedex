@@ -34,6 +34,7 @@ import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CardElevation
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -92,8 +93,8 @@ private fun allPokemonPrev() {
 
 @Composable
 fun AllPokemonScreen(
-    navController: NavController,
-    viewModel : MainViewModel
+    viewModel : MainViewModel,
+    mainNavController : NavController
 ) {
     Column(
         modifier = Modifier
@@ -109,7 +110,7 @@ fun AllPokemonScreen(
                 .align(Alignment.CenterHorizontally)
         )
         SearchBar("Search Pokemon" , viewModel)
-        PokemonGrid(viewModel)
+        PokemonGrid(viewModel, mainNavController)
     }
 }
 
@@ -167,7 +168,7 @@ fun SearchBar(hint : String, viewModel: MainViewModel) {
 
 
 @Composable
-fun PokemonGrid(viewModel : MainViewModel) {
+fun PokemonGrid(viewModel : MainViewModel, mainNavController: NavController) {
 
     val isSearching by remember {
         viewModel.isSearching
@@ -186,7 +187,7 @@ fun PokemonGrid(viewModel : MainViewModel) {
     ) {
         itemsIndexed(if(isSearching) searchedPokemon else pokemonList){
                 idx , pokemon ->
-                    PokemonCard(pokemon = pokemon , viewModel)
+                    PokemonCard(pokemon = pokemon , viewModel , mainNavController)
                 if (idx == pokemonList.size-1){
                     viewModel.getPokemonList()
                 }
@@ -194,8 +195,9 @@ fun PokemonGrid(viewModel : MainViewModel) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PokemonCard(pokemon : PokemonWithUrl, viewModel: MainViewModel) {
+fun PokemonCard(pokemon : PokemonWithUrl, viewModel: MainViewModel , mainNavController: NavController) {
     var isFav by pokemon.isFavourite
     Card(
         modifier = Modifier
@@ -205,6 +207,10 @@ fun PokemonCard(pokemon : PokemonWithUrl, viewModel: MainViewModel) {
         elevation = CardDefaults.cardElevation(
             defaultElevation = 10.dp
         ),
+        onClick = {
+            viewModel.selectedPokemon = pokemon
+            mainNavController.navigate("detail")
+        }
     )
     {
         Box {

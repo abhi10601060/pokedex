@@ -1,8 +1,10 @@
 package com.example.pokedex.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,6 +16,7 @@ import com.example.pokedex.model.pokemon.Pokemon
 import com.example.pokedex.model.pokemonlist.Result
 import com.example.pokedex.network.Resource
 import com.example.pokedex.repo.MainRepo
+import com.example.pokedex.ui.theme.TypeFire
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -31,7 +34,8 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
     val errorLoading = MutableStateFlow(false)
     var currPage = 0
 
-    val pokemonCategoryList = listOf("normal" , "fighting", "flying", "poison","ground", "rock","bug", "ghost", "steel", "fire")
+    val pokemonCategoryList = listOf("normal" , "fighting", "flying", "poison","ground", "rock","bug", "ghost", "steel", "fire","water", "grass",
+        "stellar" , "fairy", "dark", "dragon", "ice", "psychic", "electric", "unknown")
     val selectedCategoryPokemonList = mutableStateListOf<PokemonWithUrl>()
 
     var allFavPokemons : Flow<List<PokemonWithUrl>>  = MutableStateFlow(emptyList())
@@ -153,4 +157,17 @@ class MainViewModel @Inject constructor(private val mainRepo: MainRepo) : ViewMo
             allFavPokemons =  mainRepo.getAllFavPokemon()
         }
     }
+
+    val pokemon :StateFlow<Resource<Pokemon>>
+        get() = mainRepo.pokemon
+
+    var pokemonColor by mutableStateOf(TypeFire)
+    fun getPokemonByName(name : String){
+        viewModelScope.launch(Dispatchers.IO) {
+            mainRepo.getPokemonByName(name)
+        }
+    }
+
+    var selectedPokemon : PokemonWithUrl? = null
+
 }
